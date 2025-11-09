@@ -1,4 +1,3 @@
-import type { Contact } from "../../types/messenger";
 import { Button } from "../ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import {
@@ -14,9 +13,10 @@ import {
   ImageIcon,
 } from "lucide-react";
 import { cn } from "../../lib/utils";
+import type { UserData } from "../../types/auth/auth.type";
 
 interface ConversationInfoProps {
-  selectedContact: Contact;
+  selectedContact: UserData;
   onClose: () => void;
 }
 
@@ -45,7 +45,7 @@ export default function ConversationInfo({
           <div className="text-center space-y-4">
             <Avatar className="h-24 w-24 mx-auto ring-4 ring-primary/20 shadow-lg">
               <AvatarImage
-                src={selectedContact.avatar}
+                src={selectedContact.image}
                 alt={selectedContact.name}
               />
               <AvatarFallback className="text-2xl bg-gradient-to-br from-primary/20 to-accent/20 dark:bg-[#1a1a1a] text-foreground dark:text-white font-bold">

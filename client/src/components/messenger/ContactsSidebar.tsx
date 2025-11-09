@@ -1,4 +1,3 @@
-import type { Contact } from "../../types/messenger";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
 // import { Input } from "../ui/input";
@@ -6,15 +5,11 @@ import { Badge } from "../ui/badge";
 import { Settings, MoreHorizontal } from "lucide-react";
 import { cn } from "../../lib/utils";
 import SearchInput from "../baseComponents/Search";
-import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import type { AppDispatch, RootState } from "../../redux/app/store";
-import { fetchAllUser } from "../../redux/feature/auth/loginSlice";
 import type { UserData } from "../../types/auth/auth.type";
 
 interface ContactsSidebarProps {
   contacts: UserData[];
-  selectedContact: Contact;
+  selectedContact: UserData;
   isMobileView: boolean;
   showChat: boolean;
   hoveredContact: string | null;
@@ -25,6 +20,7 @@ interface ContactsSidebarProps {
 }
 
 export default function ContactsSidebar({
+  contacts,
   selectedContact,
   isMobileView,
   showChat,
@@ -34,11 +30,6 @@ export default function ContactsSidebar({
   onSettingsToggle,
   onMobileMenuToggle,
 }: ContactsSidebarProps) {
-  const { users } = useSelector((state: RootState) => state.loginAuth);
-  const dispatch = useDispatch<AppDispatch>();
-  useEffect(() => {
-    dispatch(fetchAllUser());
-  }, [dispatch]);
   return (
     <div
       className={cn(
@@ -75,7 +66,7 @@ export default function ContactsSidebar({
         <SearchInput />
       </div>
       <div className="overflow-y-auto messenger-scroll h-[calc(100vh-140px)]">
-        {users.map((user) => (
+        {contacts.map((user) => (
           <div
             key={user.id}
             onClick={() => onContactSelect(user)}

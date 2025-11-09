@@ -5,13 +5,6 @@ import { ArrowLeft, MoreHorizontal, Phone, Video } from "lucide-react";
 import { cn } from "../../lib/utils";
 import MessageBubble from "./MessageBubble";
 import MessageInput from "./MessageInput";
-import {
-  useAppDispatch,
-  useAppSelector,
-  type RootState,
-} from "../../redux/app/store";
-import { useEffect } from "react";
-import { getConversationId } from "../../redux/feature/messenger/messageSlice";
 
 export default function ChatArea({
   state,
@@ -42,15 +35,6 @@ export default function ChatArea({
   if (isMobileView && !showChat) {
     return null;
   }
-  const dispatch = useAppDispatch();
-
-  const { conversationId } = useAppSelector(
-    (state: RootState) => state.messages
-  );
-  const { user } = useAppSelector((state: RootState) => state.loginAuth);
-  useEffect(() => {
-    dispatch(getConversationId(selectedContact.id));
-  }, [selectedContact.id]);
 
   return (
     <div className={cn("flex-1 flex flex-col transition-all duration-300")}>
@@ -72,30 +56,32 @@ export default function ChatArea({
               <Avatar className="h-10 w-10 ring-2 ring-primary/20">
                 <AvatarImage
                   src={`${import.meta.env.VITE_IMAGE_URL}/${
-                    selectedContact.image
+                    selectedContact?.image
                   }`}
-                  alt={selectedContact.name}
+                  alt={selectedContact?.name}
                 />
                 <AvatarFallback className="bg-gradient-to-br from-primary/20 to-accent/20 dark:bg-[#1a1a1a] text-foreground dark:text-white font-semibold">
-                  {selectedContact.name
+                  {selectedContact?.name
                     .split(" ")
                     .map((n) => n[0])
                     .join("")}
                 </AvatarFallback>
               </Avatar>
-              {selectedContact.isOnline && (
+              {selectedContact?.isOnline && (
                 <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-online-indicator rounded-full border-2 border-card dark:border-[#0a0a0a] animate-pulse" />
               )}
             </div>
             <div>
               <h2 className="font-semibold text-foreground dark:text-white">
-                {selectedContact.name}
+                {selectedContact?.name}
               </h2>
               <p className="text-sm text-muted-foreground dark:text-gray-300 flex items-center gap-1">
-                {selectedContact.isOnline && (
+                {selectedContact?.isOnline && (
                   <span className="w-1.5 h-1.5 bg-online-indicator rounded-full animate-pulse inline-block" />
                 )}
-                {selectedContact.isOnline ? "Active now" : "Last seen recently"}
+                {selectedContact?.isOnline
+                  ? "Active now"
+                  : "Last seen recently"}
               </p>
             </div>
           </div>
@@ -128,12 +114,12 @@ export default function ChatArea({
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto messenger-scroll p-4 space-y-4 bg-gradient-to-b from-transparent via-background/20 to-transparent dark:bg-[#0a0a0a]">
-        <MessageBubble
+        {/* <MessageBubble
           conversationId={conversationId}
           currentUserId={user?.id!}
           formatTime={formatTime}
           formatRecordingTime={formatRecordingTime}
-        />
+        /> */}
 
         {isTyping && (
           <div className="flex justify-start animate-in slide-in-from-left-2 duration-300">
@@ -156,22 +142,22 @@ export default function ChatArea({
       </div>
 
       {/* Message Input */}
-      <MessageInput
-        sendContactId={selectedContact.id}
-        newMessage={newMessage}
-        isRecording={isRecording}
-        recordingType={recordingType}
-        recordingTime={recordingTime}
-        showMobileOptions={showMobileOptions}
-        isMobileView={isMobileView}
-        inputRef={inputRef}
-        onNewMessageChange={onNewMessageChange}
-        onStartRecording={onStartRecording}
-        onStopRecording={onStopRecording}
-        onToggleMobileOptions={onToggleMobileOptions}
-        onShowEmojiPicker={onShowEmojiPicker}
-        formatRecordingTime={formatRecordingTime}
-      />
+      {/* // <MessageInput
+      //   sendContactId={selectedContact.id}
+      //   newMessage={newMessage}
+      //   isRecording={isRecording}
+      //   recordingType={recordingType}
+      //   recordingTime={recordingTime}
+      //   showMobileOptions={showMobileOptions}
+      //   isMobileView={isMobileView}
+      //   inputRef={inputRef}
+      //   onNewMessageChange={onNewMessageChange}
+      //   onStartRecording={onStartRecording}
+      //   onStopRecording={onStopRecording}
+      //   onToggleMobileOptions={onToggleMobileOptions}
+      //   onShowEmojiPicker={onShowEmojiPicker}
+      //   formatRecordingTime={formatRecordingTime}
+      // /> */}
     </div>
   );
 }

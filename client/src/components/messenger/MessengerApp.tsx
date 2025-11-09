@@ -22,7 +22,7 @@ export default function MessengerApp() {
     formatRecordingTime,
     formatTime,
     handleEmojiSelect,
-    mockContacts,
+    users,
   } = useMessenger();
 
   const {
@@ -90,7 +90,7 @@ export default function MessengerApp() {
       )}
 
       <ContactsSidebar
-        contacts={mockContacts}
+        contacts={users}
         selectedContact={state.selectedContact}
         isMobileView={isMobileView}
         showChat={showChat}

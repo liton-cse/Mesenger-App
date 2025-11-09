@@ -70,6 +70,7 @@ export const fetchAllUser = createAsyncThunk<
   try {
     // Call backend to update online status and last seen
     const response = await axiosInstance.get("/user");
+    console.log(response.data.data);
     return response.data.data;
   } catch (err: any) {
     const errorMessage =

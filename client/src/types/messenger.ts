@@ -4,10 +4,10 @@ export type IMessageRequestStatus = "pending" | "approved" | "denied";
 export type MessageFormat = "text" | "audio" | "video" | "image";
 export interface Message {
   _id: string;
-  conversationId: string;
+  conversationId?: string;
   senderId: string;
   receiverId?: string;
-  content: string;
+  content?: string;
   type: MessageFormat;
   messageStatus: MESSAGE_STATUS;
   MessageRequestStatus?: IMessageRequestStatus;
@@ -15,8 +15,7 @@ export interface Message {
   imageUrl?: string;
   audioUrl?: string;
   duration?: number;
-  createdAt: Date;
-  updatedAt: Date;
+  timestamp: Date;
 }
 export interface MessagePreview {
   id: string;
