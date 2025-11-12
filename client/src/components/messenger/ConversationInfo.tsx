@@ -16,7 +16,7 @@ import { cn } from "../../lib/utils";
 import type { UserData } from "../../types/auth/auth.type";
 
 interface ConversationInfoProps {
-  selectedContact: UserData;
+  selectedContact?: UserData | null;
   onClose: () => void;
 }
 
@@ -24,6 +24,9 @@ export default function ConversationInfo({
   selectedContact,
   onClose,
 }: ConversationInfoProps) {
+  if (!selectedContact) {
+    return <div className="text-gray-400">No contact selected</div>;
+  }
   return (
     <div className="fixed inset-0 z-50 bg-gradient-to-br from-purple-100 via-blue-50 to-cyan-50 dark:bg-[#0a0a0a] animate-in slide-in-from-right duration-300">
       <div className="h-full flex flex-col">
@@ -45,7 +48,9 @@ export default function ConversationInfo({
           <div className="text-center space-y-4">
             <Avatar className="h-24 w-24 mx-auto ring-4 ring-primary/20 shadow-lg">
               <AvatarImage
-                src={selectedContact.image}
+                src={`${import.meta.env.VITE_IMAGE_URL}/${
+                  selectedContact.image
+                }`}
                 alt={selectedContact.name}
               />
               <AvatarFallback className="text-2xl bg-gradient-to-br from-primary/20 to-accent/20 dark:bg-[#1a1a1a] text-foreground dark:text-white font-bold">

@@ -6,6 +6,7 @@ export interface LoginPayload {
 }
 
 export interface UserData {
+  _id?: string;
   id: string;
   name: string;
   email: string;
@@ -18,6 +19,7 @@ export interface UserData {
   lastMessage?: string;
   timestamp?: string;
   unreadCount?: number;
+  onlineStatus?: string;
 }
 
 export interface AuthResponse {

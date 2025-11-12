@@ -9,7 +9,7 @@ import type { UserData } from "../../types/auth/auth.type";
 
 interface ContactsSidebarProps {
   contacts: UserData[];
-  selectedContact: UserData;
+  selectedContact: UserData | null;
   isMobileView: boolean;
   showChat: boolean;
   hoveredContact: string | null;
@@ -77,9 +77,9 @@ export default function ContactsSidebar({
               "hover:bg-gradient-to-r hover:from-sidebar-accent/60 hover:via-sidebar-accent/40 hover:to-sidebar-accent/60 dark:hover:bg-[#1a1a1a]",
               "hover:shadow-lg hover:shadow-sidebar-accent/20 hover:scale-[1.02] hover:border-sidebar-accent/30",
               "active:scale-[0.98] active:transition-transform active:duration-100",
-              selectedContact.id === user.id &&
+              selectedContact?.id === user.id &&
                 "bg-gradient-to-r from-sidebar-accent/70 to-sidebar-accent/50 dark:bg-[#1a1a1a] shadow-md",
-              hoveredContact === user.id && "transform-gpu"
+              hoveredContact === user?.id && "transform-gpu"
             )}
           >
             <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-accent/5 to-primary/5 dark:bg-[#0a0a0a] opacity-0 group-hover:opacity-100 transition-opacity duration-300" />

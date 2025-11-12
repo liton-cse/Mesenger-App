@@ -138,7 +138,7 @@ const chatSlice = createSlice({
           (msg) => msg._id === action.payload._id
         );
         if (index !== -1) {
-          state.messages[index].messageStatus = action.payload.messageStatus;
+          state.messages[index].status = action.payload.status;
         }
       })
 

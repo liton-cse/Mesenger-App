@@ -12,12 +12,16 @@ import {
 } from "lucide-react";
 import { cn } from "../../lib/utils";
 import { addMessage } from "../../redux/feature/messenger/messageSlice";
-// import { sendMessage } from "../../redux/feature/messenger/messageSlice";
-import type { AppDispatch } from "../../redux/app/store";
-import { sendMessage } from "../../redux/feature/messenger/messageSlice";
+import {
+  useAppSelector,
+  type AppDispatch,
+  type RootState,
+} from "../../redux/app/store";
+import { socket } from "../../lib/socket";
+import { useEffect } from "react";
 
 interface MessageInputProps {
-  sendContactId: string;
+  sendContactId?: string;
   newMessage: string;
   isRecording: boolean;
   recordingType: "audio" | "video" | null;
@@ -50,25 +54,40 @@ export default function MessageInput({
   formatRecordingTime,
 }: MessageInputProps) {
   const dispatch: AppDispatch = useDispatch();
+  const { conversationId } = useAppSelector(
+    (state: RootState) => state.messages
+  );
+  const { user } = useAppSelector((state: RootState) => state.loginAuth);
+  if (!sendContactId) {
+    return <div>loading...</div>;
+  }
+  useEffect(() => {
+    if (conversationId) {
+      socket.emit("joinConversation", conversationId);
+    }
+  }, [conversationId]);
 
   const handleSendMessage = async () => {
     if (!newMessage.trim()) return;
 
     const messagePayload = {
+      senderId: user?._id,
+      conversationId,
       content: newMessage,
       timestamp: new Date().toISOString(),
       type: "text" as const,
       receiverId: sendContactId,
     };
-
     dispatch(addMessage(messagePayload));
-    dispatch(sendMessage(messagePayload));
+
+    socket.emit("sendMessage", messagePayload);
     onNewMessageChange("");
   };
 
   // Recording send (audio/video)
   const handleSendRecording = (type: "audio" | "video") => {
     const messagePayload = {
+      id: Date.now().toString(),
       content: `[${type} message]`,
       timestamp: new Date().toISOString(),
       type,
@@ -76,7 +95,7 @@ export default function MessageInput({
     };
 
     dispatch(addMessage(messagePayload));
-    dispatch(sendMessage(messagePayload));
+    socket.emit("sendMessage", messagePayload); // Send via socket
     onStopRecording();
   };
 

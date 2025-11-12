@@ -5,6 +5,8 @@ import { ArrowLeft, MoreHorizontal, Phone, Video } from "lucide-react";
 import { cn } from "../../lib/utils";
 import MessageBubble from "./MessageBubble";
 import MessageInput from "./MessageInput";
+import { useSelector } from "react-redux";
+import type { RootState } from "../../redux/app/store";
 
 export default function ChatArea({
   state,
@@ -35,6 +37,8 @@ export default function ChatArea({
   if (isMobileView && !showChat) {
     return null;
   }
+
+  const { user } = useSelector((state: RootState) => state.loginAuth);
 
   return (
     <div className={cn("flex-1 flex flex-col transition-all duration-300")}>
@@ -114,12 +118,11 @@ export default function ChatArea({
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto messenger-scroll p-4 space-y-4 bg-gradient-to-b from-transparent via-background/20 to-transparent dark:bg-[#0a0a0a]">
-        {/* <MessageBubble
-          conversationId={conversationId}
-          currentUserId={user?.id!}
+        <MessageBubble
+          currentUserId={user?._id!}
           formatTime={formatTime}
           formatRecordingTime={formatRecordingTime}
-        /> */}
+        />
 
         {isTyping && (
           <div className="flex justify-start animate-in slide-in-from-left-2 duration-300">
@@ -142,22 +145,22 @@ export default function ChatArea({
       </div>
 
       {/* Message Input */}
-      {/* // <MessageInput
-      //   sendContactId={selectedContact.id}
-      //   newMessage={newMessage}
-      //   isRecording={isRecording}
-      //   recordingType={recordingType}
-      //   recordingTime={recordingTime}
-      //   showMobileOptions={showMobileOptions}
-      //   isMobileView={isMobileView}
-      //   inputRef={inputRef}
-      //   onNewMessageChange={onNewMessageChange}
-      //   onStartRecording={onStartRecording}
-      //   onStopRecording={onStopRecording}
-      //   onToggleMobileOptions={onToggleMobileOptions}
-      //   onShowEmojiPicker={onShowEmojiPicker}
-      //   formatRecordingTime={formatRecordingTime}
-      // /> */}
+      <MessageInput
+        sendContactId={selectedContact?.id}
+        newMessage={newMessage}
+        isRecording={isRecording}
+        recordingType={recordingType}
+        recordingTime={recordingTime}
+        showMobileOptions={showMobileOptions}
+        isMobileView={isMobileView}
+        inputRef={inputRef}
+        onNewMessageChange={onNewMessageChange}
+        onStartRecording={onStartRecording}
+        onStopRecording={onStopRecording}
+        onToggleMobileOptions={onToggleMobileOptions}
+        onShowEmojiPicker={onShowEmojiPicker}
+        formatRecordingTime={formatRecordingTime}
+      />
     </div>
   );
 }

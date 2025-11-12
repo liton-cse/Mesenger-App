@@ -1,38 +1,31 @@
 import { useState, useRef, useEffect } from "react";
 import type { Message, MessengerState } from "../types/messenger";
-// import { mockContacts, mockMessages } from "../data/mockData";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "../redux/app/store";
 import { fetchAllUser } from "../redux/feature/auth/loginSlice";
 // import { fetchMessages } from "../redux/feature/messenger/chatSlice";
-// import { getConversationId } from "../redux/feature/messenger/messageSlice";
+import { getConversationId } from "../redux/feature/messenger/messageSlice";
 import type { UserData } from "../types/auth/auth.type";
 
 export const useMessenger = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { users } = useSelector((state: RootState) => state.loginAuth);
-  // const { conversationId } = useSelector((state: RootState) => state.messages);
+  const { conversationId } = useSelector((state: RootState) => state.messages);
   const { messages } = useSelector((state: RootState) => state.chat);
 
-  // console.log(conversationId);
-  // console.log(messages);
-  // const SelectedContact = users[0];
-  // useEffect(() => {
-  //   dispatch(getConversationId(SelectedContact.id));
-  // }, [SelectedContact.id]);
-
+  // Safe logging
   useEffect(() => {
-    console.log("hek=llo world");
-    dispatch(fetchAllUser());
-    // dispatch(fetchMessages(conversationId));
-  }, [dispatch]);
-  useEffect(() => {
-    console.log("Users updated:", users);
-  }, [users]);
+    if (conversationId) {
+      console.log("✅ Conversation ID:", conversationId);
+    } else {
+      console.log("⏳ Waiting for conversationId...");
+    }
+  }, [conversationId]);
 
+  // --- Local Messenger state ---
   const [state, setState] = useState<MessengerState>({
-    selectedContact: users[0],
-    messages: messages,
+    selectedContact: null,
+    messages: [],
     newMessage: "",
     isTyping: false,
     isMobileView: false,
@@ -54,6 +47,40 @@ export const useMessenger = () => {
   const recordingInterval = useRef<NodeJS.Timeout | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // --- 1. Fetch all users on mount ---
+  useEffect(() => {
+    dispatch(fetchAllUser());
+  }, [dispatch]);
+
+  // --- 2. Set selected contact when users are loaded ---
+  useEffect(() => {
+    if (users.length > 0 && !state.selectedContact) {
+      setState((prev) => ({ ...prev, selectedContact: users[0] }));
+    }
+  }, [users, state.selectedContact]);
+
+  // --- 3. Get conversationId when contact changes ---
+  useEffect(() => {
+    if (state.selectedContact?.id) {
+      dispatch(getConversationId(state.selectedContact.id));
+    }
+  }, [state.selectedContact?.id, dispatch]);
+
+  // --- 4. Fetch messages when conversationId is ready ---
+  // useEffect(() => {
+  //   if (conversationId) {
+  //     dispatch(fetchMessages(conversationId));
+  //   }
+  // }, [conversationId, dispatch]);
+
+  // --- 5. Update local messages when Redux messages change ---
+  useEffect(() => {
+    if (messages) {
+      setState((prev) => ({ ...prev, messages }));
+    }
+  }, [messages]);
+
+  // --- 6. Handle mobile view ---
   useEffect(() => {
     const checkMobile = () => {
       const isMobile = window.innerWidth < 768;
@@ -63,24 +90,24 @@ export const useMessenger = () => {
         showChat: isMobile ? prev.showChat : false,
       }));
     };
-
     checkMobile();
     window.addEventListener("resize", checkMobile);
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
+  // --- 7. Scroll to bottom when messages update ---
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
-
   useEffect(() => {
     scrollToBottom();
   }, [state.messages]);
 
-  const updateState = (updates: Partial<MessengerState>) => {
+  // --- Helper to update local state ---
+  const updateState = (updates: Partial<MessengerState>) =>
     setState((prev) => ({ ...prev, ...updates }));
-  };
 
+  // --- Contact selection ---
   const handleContactSelect = (contact: UserData) => {
     updateState({
       selectedContact: contact,
@@ -88,37 +115,28 @@ export const useMessenger = () => {
     });
   };
 
-  const handleBackToContacts = () => {
-    updateState({ showChat: false });
-  };
+  const handleBackToContacts = () => updateState({ showChat: false });
 
+  // --- Recording handlers ---
   const startRecording = (type: "audio" | "video") => {
-    updateState({
-      isRecording: true,
-      recordingType: type,
-      recordingTime: 0,
-    });
-
+    updateState({ isRecording: true, recordingType: type, recordingTime: 0 });
     recordingInterval.current = setInterval(() => {
       setState((prev) => ({ ...prev, recordingTime: prev.recordingTime + 1 }));
     }, 1000);
   };
 
   const stopRecording = () => {
-    if (recordingInterval.current) {
-      clearInterval(recordingInterval.current);
-    }
+    if (recordingInterval.current) clearInterval(recordingInterval.current);
 
     if (state.recordingType && state.recordingTime > 0) {
       const message: Message = {
-        _id: Date.now().toString(),
+        id: Date.now().toString(),
         type: state.recordingType,
         senderId: "me",
         timestamp: new Date(),
-        messageStatus: "sent",
+        status: "sent",
         duration: state.recordingTime,
       };
-
       setState((prev) => ({
         ...prev,
         messages: [...prev.messages, message],
@@ -135,18 +153,17 @@ export const useMessenger = () => {
     }
   };
 
+  // --- Send text message ---
   const handleSendMessage = () => {
     if (!state.newMessage.trim()) return;
-
     const message: Message = {
-      _id: Date.now().toString(),
+      id: Date.now().toString(),
       content: state.newMessage,
       type: "text",
       senderId: "me",
       timestamp: new Date(),
-      messageStatus: "sent",
+      status: "sent",
     };
-
     setState((prev) => ({
       ...prev,
       messages: [...prev.messages, message],
@@ -154,16 +171,16 @@ export const useMessenger = () => {
       isTyping: true,
     }));
 
+    // Fake reply
     setTimeout(() => {
       const response: Message = {
-        _id: (Date.now() + 1).toString(),
+        id: (Date.now() + 1).toString(),
         content: "Thanks for your message! I'll get back to you soon.",
         type: "text",
         senderId: "other",
-        messageStatus: "sent",
+        status: "sent",
         timestamp: new Date(),
       };
-
       setState((prev) => ({
         ...prev,
         messages: [...prev.messages, response],
@@ -178,13 +195,12 @@ export const useMessenger = () => {
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
-  const formatTime = (date: Date) => {
-    return date.toLocaleTimeString("en-US", {
+  const formatTime = (date: Date) =>
+    date.toLocaleTimeString("en-US", {
       hour: "numeric",
       minute: "2-digit",
       hour12: false,
     });
-  };
 
   const handleEmojiSelect = (emoji: string) => {
     setState((prev) => ({
@@ -209,5 +225,6 @@ export const useMessenger = () => {
     formatTime,
     handleEmojiSelect,
     users,
+    conversationId,
   };
 };

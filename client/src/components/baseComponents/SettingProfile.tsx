@@ -36,7 +36,7 @@ const ProfileCard = React.memo(function ProfileCardComponent() {
         </h3>
         <p className="text-sm text-muted-foreground dark:text-gray-300 flex items-center gap-1">
           <span className="w-2 h-2 bg-online-indicator rounded-full animate-pulse" />
-          {user?.isOnline === "online" ? "Active now" : "Offline"}
+          {user?.onlineStatus === "online" ? "Active now" : "Offline"}
         </p>
       </div>
     </div>

@@ -102,7 +102,8 @@ const messagesSlice = createSlice({
         state.error = null;
       })
       .addCase(getConversationId.fulfilled, (state, action) => {
-        state.conversationId = action.payload.conversationId;
+        console.log(action.payload);
+        state.conversationId = action.payload;
         state.loading = false;
       })
       .addCase(getConversationId.rejected, (state, action) => {

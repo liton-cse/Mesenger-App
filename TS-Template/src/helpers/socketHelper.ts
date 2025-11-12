@@ -19,20 +19,19 @@ const socket = (io: Server) => {
 
     // Handle sending a message
     socket.on('sendMessage', async data => {
-      const { senderId, receiverId, content, type, media, conversationId } =
+      const { senderId, conversationId, content, timestamp, type, receiverId } =
         data;
 
       try {
         // Save message via service (creates conversation if needed)
         const message = await MessageService.sendMessageService({
           senderId,
-          receiverId,
-          content,
-          type,
-          media,
           conversationId,
+          content,
+          timestamp,
+          type,
+          receiverId,
         });
-
         // Emit to all participants in the conversation
         io.to(message.conversationId.toString()).emit(
           'receiveMessage',

@@ -3,18 +3,20 @@ export type MESSAGE_STATUS = "sent" | "delivered" | "read";
 export type IMessageRequestStatus = "pending" | "approved" | "denied";
 export type MessageFormat = "text" | "audio" | "video" | "image";
 export interface Message {
-  _id: string;
+  _id?: string;
+  id: string;
   conversationId?: string;
   senderId: string;
   receiverId?: string;
   content?: string;
   type: MessageFormat;
-  messageStatus: MESSAGE_STATUS;
+  status: MESSAGE_STATUS;
   MessageRequestStatus?: IMessageRequestStatus;
   videoUrl?: string;
   imageUrl?: string;
   audioUrl?: string;
   duration?: number;
+  updatedAt?: Date;
   timestamp: Date;
 }
 export interface MessagePreview {
@@ -37,7 +39,7 @@ export interface Contact {
 }
 
 export interface MessengerState {
-  selectedContact: UserData;
+  selectedContact?: UserData | null;
   messages: Message[];
   newMessage: string;
   isTyping: boolean;
@@ -56,7 +58,7 @@ export interface MessengerState {
   hoveredContact: string | null;
 }
 export interface ContactsSidebarProps {
-  contacts: UserData[];
+  contacts?: UserData[];
   selectedContact: UserData;
   isMobileView: boolean;
   showChat: boolean;

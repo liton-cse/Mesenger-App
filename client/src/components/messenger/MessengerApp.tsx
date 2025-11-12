@@ -26,6 +26,7 @@ export default function MessengerApp() {
   } = useMessenger();
 
   const {
+    selectedContact,
     isDarkMode,
     showSettings,
     showConversationInfo,
@@ -35,7 +36,7 @@ export default function MessengerApp() {
     isMobileView,
     showChat,
   } = state;
-
+  console.log("selected Data:", selectedContact);
   return (
     <div
       className={cn(
@@ -50,9 +51,9 @@ export default function MessengerApp() {
         onToggleDarkMode={() => updateState({ isDarkMode: !isDarkMode })}
       />
 
-      {showConversationInfo && (
+      {showConversationInfo && selectedContact && (
         <ConversationInfo
-          selectedContact={state.selectedContact}
+          selectedContact={selectedContact}
           onClose={() => updateState({ showConversationInfo: false })}
         />
       )}
@@ -91,7 +92,7 @@ export default function MessengerApp() {
 
       <ContactsSidebar
         contacts={users}
-        selectedContact={state.selectedContact}
+        selectedContact={selectedContact ?? null}
         isMobileView={isMobileView}
         showChat={showChat}
         hoveredContact={state.hoveredContact}

@@ -1,30 +1,46 @@
 import { Mic, VideoIcon } from "lucide-react";
 import { cn } from "../../lib/utils";
-import { useAppDispatch, useAppSelector } from "../../redux/app/store";
+import {
+  useAppDispatch,
+  useAppSelector,
+  type RootState,
+} from "../../redux/app/store";
 import { useEffect } from "react";
+import { socket } from "../../lib/socket";
+import { addMessage } from "../../redux/feature/messenger/messageSlice";
 import { fetchMessages } from "../../redux/feature/messenger/chatSlice";
 
 interface MessageBubbleProps {
-  conversationId?: string | null;
   currentUserId: string;
   formatTime: (date: Date) => string;
   formatRecordingTime: (seconds: number) => string;
 }
 
 export default function MessageBubble({
-  conversationId,
   currentUserId,
   formatTime,
   formatRecordingTime,
 }: MessageBubbleProps) {
-  const dispatch = useAppDispatch();
   const { messages, loading } = useAppSelector((state) => state.chat);
+  const { conversationId } = useAppSelector(
+    (state: RootState) => state.messages
+  );
+  console.log("message from socket", messages);
+  const dispatch = useAppDispatch();
+  // ✅ Fetch all messages on mount
+  useEffect(() => {
+    dispatch(fetchMessages(conversationId));
+  }, [dispatch, conversationId]);
 
   useEffect(() => {
-    if (conversationId) {
-      dispatch(fetchMessages(conversationId));
-    }
-  }, [conversationId, dispatch]);
+    socket.on("receiveMessage", (message) => {
+      dispatch(addMessage(message));
+    });
+
+    return () => {
+      socket.off("receiveMessage");
+    };
+  }, []);
 
   // Loading spinner
   if (loading) {
@@ -44,7 +60,6 @@ export default function MessageBubble({
     <div className="space-y-4">
       {messages.map((message) => {
         const isMe = currentUserId && currentUserId === message.senderId;
-
         return (
           <div
             key={message._id}
@@ -99,18 +114,18 @@ export default function MessageBubble({
               {/* Timestamp and status */}
               <div className="flex items-center justify-end gap-1 mt-1">
                 <span className="text-xs opacity-70">
-                  {formatTime(new Date(message.createdAt))}
+                  {formatTime(new Date(message.timestamp ?? Date.now()))}
                 </span>
-                {isMe && message.messageStatus && (
+
+                {isMe && message.status && (
                   <div
                     className={cn(
                       "w-2 h-2 rounded-full transition-all duration-200",
-                      message.messageStatus.toLowerCase() === "sent" &&
+                      message.status.toLowerCase() === "sent" &&
                         "bg-current opacity-50",
-                      message.messageStatus.toLowerCase() === "delivered" &&
+                      message.status.toLowerCase() === "delivered" &&
                         "bg-current opacity-70",
-                      message.messageStatus.toLowerCase() === "read" &&
-                        "bg-current"
+                      message.status.toLowerCase() === "read" && "bg-current"
                     )}
                   />
                 )}

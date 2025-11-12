@@ -28,7 +28,9 @@ const getOrcreateConversation = async (data: Partial<IMessage>) => {
 
 // Send a message (create new conversation if needed)
 const sendMessageService = async (data: Partial<IMessage>) => {
+  console.log('my Data ', data);
   // Create the message
+  data.status = MESSAGE_STATUS.SENT;
   const message = await MessageModel.create(data);
 
   // Update conversation's lastMessage

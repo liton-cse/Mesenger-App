@@ -29,6 +29,7 @@ export interface IMessage extends Document {
     duration?: number;
   };
   status: MESSAGE_STATUS;
+  timestamp?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
